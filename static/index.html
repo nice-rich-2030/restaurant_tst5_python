@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飲食店検索Webアプリ - Google AI Grounding Search</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ 飲食店検索Webアプリ</h1>
+        <p class="subtitle">Google AI Grounding Search 検証ツール</p>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <label for="searchInput">検索条件を入力してください:</label>
+            <textarea
+                id="searchInput"
+                rows="3"
+                placeholder="例: 渋谷駅周辺でラーメンが美味しい店"
+            ></textarea>
+            <button id="searchButton" class="button-primary" style="margin-top: 10px;">
+                🔍 検索開始
+            </button>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message">
+            <strong>エラー:</strong> <span id="errorText"></span>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p class="loading-text">検索中...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section hidden">
+
+            <!-- Step 1: Input Details -->
+            <div class="step-box">
+                <div class="step-header" onclick="toggleCollapse('step1Content')">
+                    <span class="collapse-icon" id="step1Icon">▼</span>
+                    <h3>Step 1: 入力詳細</h3>
+                </div>
+                <div id="step1Content" class="step-content">
+                    <div class="info-grid">
+                        <div class="info-label">入力テキスト:</div>
+                        <div class="info-value" id="step1InputText"></div>
+
+                        <div class="info-label">使用プロンプト:</div>
+                        <div class="info-value" id="step1Prompt"></div>
+
+                        <div class="info-label">モデル名:</div>
+                        <div class="info-value" id="step1Model"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Initial Search Results -->
+            <div class="step-box">
+                <div class="step-header" onclick="toggleCollapse('step2Content')">
+                    <span class="collapse-icon" id="step2Icon">▼</span>
+                    <h3>Step 2: 初回サーチ結果</h3>
+                </div>
+                <div id="step2Content" class="step-content">
+                    <div class="info-grid">
+                        <div class="info-label">Gemini生レスポンス:</div>
+                        <div class="info-value">
+                            <div class="text-box" id="step2RawResponse"></div>
+                        </div>
+
+                        <div class="info-label">グラウンディング情報:</div>
+                        <div class="info-value">
+                            <div class="text-box" id="step2Metadata"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Shop List -->
+            <div class="step-box">
+                <div class="step-header" onclick="toggleCollapse('step3Content')">
+                    <span class="collapse-icon" id="step3Icon">▼</span>
+                    <h3>Step 3: 抽出された店舗一覧</h3>
+                </div>
+                <div id="step3Content" class="step-content">
+                    <p style="margin-bottom: 10px; color: #555;">
+                        検索したい店舗を選択してください:
+                    </p>
+                    <ul id="shopList" class="shop-list">
+                        <!-- Shop items will be inserted here -->
+                    </ul>
+                    <button id="detailSearchButton" class="button-primary" style="margin-top: 15px; display: none;">
+                        🔍 個別店舗サーチ開始
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detail Search Loading -->
+            <div id="detailLoading" class="loading">
+                <div class="spinner"></div>
+                <p class="loading-text" id="detailLoadingText">個別店舗を検索中...</p>
+            </div>
+
+            <!-- Step 4: Individual Shop Details -->
+            <div id="step4Container" class="hidden">
+                <!-- Individual shop details will be inserted here -->
+            </div>
+
+            <!-- Step 5: Summary Table -->
+            <div id="step5Container" class="step-box hidden">
+                <div class="step-header" onclick="toggleCollapse('step5Content')">
+                    <span class="collapse-icon" id="step5Icon">▼</span>
+                    <h3>Step 5: サマリー (合致度一覧)</h3>
+                </div>
+                <div id="step5Content" class="step-content">
+                    <table id="summaryTable" class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>店舗名</th>
+                                <th>合致度</th>
+                                <th>判定理由</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                            <!-- Summary rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
