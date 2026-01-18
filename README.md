@@ -476,7 +476,7 @@ GEMINI_MODEL=gemini-2.0-flash-exp
 
 ## 📝 ライセンス
 
-MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照
+MIT License 
 
 ---
 
