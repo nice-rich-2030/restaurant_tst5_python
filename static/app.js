@@ -271,12 +271,20 @@ function displayDetailResults(data) {
 
             <div class="info-label">判定理由:</div>
             <div class="info-value">${summary.judgement.reason}</div>
+
+            <div class="info-label">参照元URL:</div>
+            <div class="info-value">
+                <div id="sources-${index}" class="source-list"></div>
+            </div>
         `;
 
         stepContent.appendChild(infoGrid);
         stepBox.appendChild(stepHeader);
         stepBox.appendChild(stepContent);
         step4Container.appendChild(stepBox);
+
+        // Render sources (after DOM insertion)
+        renderSources(summary.sources, `sources-${index}`);
     });
 
     step4Container.classList.remove('hidden');
@@ -298,6 +306,39 @@ function displayDetailResults(data) {
 
     step5Container.classList.remove('hidden');
     console.log('[Display] Step 5 rendered with summary table');
+}
+
+/**
+ * Render source URLs
+ */
+function renderSources(sources, containerId) {
+    const container = document.getElementById(containerId);
+
+    if (!sources || sources.length === 0) {
+        container.innerHTML = '<p class="no-sources">参照元URLなし</p>';
+        console.log('[Display] No sources available for', containerId);
+        return;
+    }
+
+    const ul = document.createElement('ul');
+    ul.className = 'source-url-list';
+
+    sources.forEach((source) => {
+        const li = document.createElement('li');
+
+        const a = document.createElement('a');
+        a.href = source.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = source.title || source.url;
+        a.title = source.url;  // Tooltip shows full URL
+
+        li.appendChild(a);
+        ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+    console.log('[Display] Rendered', sources.length, 'sources for', containerId);
 }
 
 /**
