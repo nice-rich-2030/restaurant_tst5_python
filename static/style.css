@@ -289,6 +289,59 @@ h1 {
     color: white;
 }
 
+/* Source URL List */
+.source-list {
+    margin-top: 0.5rem;
+}
+
+.source-url-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.source-url-list li {
+    margin-bottom: 0.5rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.source-url-list li:hover {
+    background: #e9ecef;
+}
+
+.source-url-list a {
+    color: #007bff;
+    text-decoration: none;
+    word-break: break-all;
+    display: inline-flex;
+    align-items: center;
+}
+
+.source-url-list a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+.source-url-list a::before {
+    content: "🔗";
+    margin-right: 0.5rem;
+    font-size: 1.1em;
+    flex-shrink: 0;
+}
+
+.no-sources {
+    color: #6c757d;
+    font-style: italic;
+    margin: 0;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
 /* Hidden */
 .hidden {
     display: none;

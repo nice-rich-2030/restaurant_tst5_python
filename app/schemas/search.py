@@ -40,6 +40,12 @@ class ShopDetailRequest(BaseModel):
 
 # Response Data Models
 
+class SourceCitation(BaseModel):
+    """Source citation from grounding search"""
+    url: str = Field(..., description="Source URL")
+    title: Optional[str] = Field(None, description="Page title if available")
+
+
 class ShopListData(BaseModel):
     """Extracted shop list data"""
     shops: List[str] = Field(default_factory=list, description="List of shop names (max 10)")
@@ -58,6 +64,7 @@ class SummaryData(BaseModel):
     shop_name: str = Field(..., description="Shop name")
     detail_search_result: str = Field(..., description="Detail search result text")
     judgement: JudgementData = Field(..., description="Match judgement")
+    sources: List[SourceCitation] = Field(default_factory=list, description="Source citations from grounding search")
 
 
 # Response Schemas

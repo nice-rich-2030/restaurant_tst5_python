@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     # Google AI Configuration
     google_api_key: str
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-2.0-flash"
 
     # Logging Configuration
     log_level: str = "DEBUG"
@@ -36,3 +36,8 @@ def get_settings() -> Settings:
         Settings: Application settings
     """
     return Settings()
+
+
+def clear_settings_cache():
+    """Clear the settings cache to reload from .env"""
+    get_settings.cache_clear()

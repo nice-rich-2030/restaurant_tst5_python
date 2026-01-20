@@ -13,6 +13,7 @@ from app.schemas.search import (
     SummaryData,
     JudgementData,
     JudgementSchema,
+    SourceCitation,
 )
 from app.config import get_settings
 from app.logger import logger
@@ -50,7 +51,8 @@ class SearchService:
 
         # Step 2: Perform Grounding Search
         logger.info("[Step 2] Performing Grounding Search...")
-        raw_response = self.gemini_service.grounding_search(prompt)
+        search_result = self.gemini_service.grounding_search(prompt)
+        raw_response = search_result["text"]
         logger.info(f"[Step 2] Grounding Search completed: {len(raw_response)} chars")
 
         # Step 3: Extract shop names using structured output
@@ -203,15 +205,17 @@ class SearchService:
             try:
                 # Step 4: Individual shop Grounding Search
                 logger.info(f"[Step 4-{i}] Performing Grounding Search for: {shop_name}")
-                detail_result = self._shop_detail_search(shop_name)
-                logger.info(f"[Step 4-{i}] Grounding Search completed: {len(detail_result)} chars")
+                detail_data = self._shop_detail_search(shop_name)
+                detail_result = detail_data["text"]
+                detail_sources = detail_data["sources"]
+                logger.info(f"[Step 4-{i}] Grounding Search completed: {len(detail_result)} chars, {len(detail_sources)} sources")
 
                 # Step 5: Match judgement
                 logger.info(f"[Step 5-{i}] Judging match for: {shop_name}")
                 judgement = self._judge_match(input_text, shop_name, detail_result)
                 logger.info(f"[Step 5-{i}] Judgement: score={judgement.score}")
 
-                # Build summary
+                # Build summary with sources
                 summary = SummaryData(
                     shop_name=shop_name,
                     detail_search_result=detail_result,
@@ -220,7 +224,11 @@ class SearchService:
                         score=judgement.score,
                         reason=judgement.reason,
                         search_result=detail_result
-                    )
+                    ),
+                    sources=[
+                        SourceCitation(url=s["url"], title=s.get("title"))
+                        for s in detail_sources
+                    ]
                 )
                 summaries.append(summary)
 
@@ -256,7 +264,7 @@ class SearchService:
 
         return response
 
-    def _shop_detail_search(self, shop_name: str) -> str:
+    def _shop_detail_search(self, shop_name: str) -> dict:
         """
         Perform Grounding Search for a specific shop
 
@@ -264,7 +272,10 @@ class SearchService:
             shop_name: Shop name to search
 
         Returns:
-            str: Search result text
+            dict: {
+                "text": str,  # Search result text
+                "sources": List[dict]  # Source citations
+            }
         """
         prompt = f"""「{shop_name}」について、以下の情報を検索してください:
 

@@ -1,7 +1,7 @@
 """
 Search API endpoints
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.search import (
     SearchRequest,
     InitialSearchResponse,
@@ -13,12 +13,20 @@ from app.logger import logger
 
 router = APIRouter(prefix="/api", tags=["search"])
 
-# Initialize search service
-search_service = SearchService()
+
+def get_search_service() -> SearchService:
+    """
+    Dependency to get SearchService instance.
+    Creates a new instance each time to pick up latest settings.
+    """
+    return SearchService()
 
 
 @router.post("/search", response_model=InitialSearchResponse)
-async def initial_search(request: SearchRequest):
+async def initial_search(
+    request: SearchRequest,
+    search_service: SearchService = Depends(get_search_service)
+):
     """
     Step 1-3: Initial Grounding Search and shop name extraction
 
@@ -41,7 +49,10 @@ async def initial_search(request: SearchRequest):
 
 
 @router.post("/search/detail", response_model=ShopDetailSearchResponse)
-async def detail_search(request: ShopDetailRequest):
+async def detail_search(
+    request: ShopDetailRequest,
+    search_service: SearchService = Depends(get_search_service)
+):
     """
     Step 4-5: Individual shop detail search and match judgement
 

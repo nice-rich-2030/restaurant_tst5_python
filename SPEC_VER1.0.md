@@ -1,8 +1,10 @@
 # 飲食店検索Webアプリ 仕様書 VER1.0 (実装版)
 
 **作成日**: 2026-01-19
-**バージョン**: 1.0 (実装完了版)
-**変更履歴**: 計画版(SPEC.md)から実装時の変更点を反映
+**バージョン**: 1.1 (実装完了版 + 機能追加)
+**変更履歴**:
+- 計画版(SPEC.md)から実装時の変更点を反映
+- 2026-01-19: ソースURL表示機能を追加（v1.1）
 
 ---
 
@@ -14,6 +16,12 @@
 | チェックボックスデフォルト | 全選択 | 全未選択 | ユーザーが明示的に選択する設計に変更 |
 | JudgementスコアのLiteral型 | Literal[1,2,3,4,5] | int (ge=1, le=5) | JSON Schema変換の互換性を考慮 |
 | レスポンスフィールド名 | prompt | prompt_used | 命名の明確化 |
+
+## 機能追加（v1.1）
+
+| 日付 | 機能 | 説明 | 実装内容 |
+|------|------|------|----------|
+| 2026-01-19 | ソースURL表示 | Step 4の各店舗詳細サーチ結果の下に、グラウンディング検索の参照元URLを表示 | groundingMetadata.groundingChunksからURLとタイトルを抽出し、クリック可能なリンクとして表示 |
 
 ---
 
@@ -91,6 +99,10 @@
 - ✅ 4.2 Grounding Search呼び出し（選択店舗を順次処理、500ms間隔）
 - ✅ 4.3 各店舗サーチ結果の詳細表示（Step 4、折りたたみ可能）
 - ✅ 4.4 エラーハンドリング（個別店舗のエラーをサマリーに含める）
+- ✅ 4.5 ソースURL表示（v1.1追加）
+  - groundingMetadata.groundingChunksからURLとタイトルを抽出
+  - 各店舗の詳細サーチ結果の下に「参照元URL」セクションを表示
+  - リンクは新しいタブで開く、タイトルが利用可能な場合は表示
 
 ### 主要機能5: 合致度判定
 - ✅ 5.1 各店舗結果と入力テキストの合致度をAI判定（Pydanticスキーマ使用）
@@ -140,6 +152,11 @@ SummaryData:
   - shop_name: str           # 店舗名
   - detail_search_result: str  # 詳細検索結果
   - judgement: JudgementData  # 合致度判定
+  - sources: List[SourceCitation]  # ソースURL（v1.1追加）
+
+SourceCitation (v1.1追加):
+  - url: str                 # 参照元URL
+  - title: Optional[str]     # ページタイトル（利用可能な場合）
 
 JudgementData:
   - shop_name: str           # 店舗名

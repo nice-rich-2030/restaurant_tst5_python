@@ -36,6 +36,20 @@ response = client.models.generate_content(
 
 # 結果取得
 result_text = response.text
+
+# ソースURL抽出（v1.1追加）
+sources = []
+if hasattr(response, 'candidates') and response.candidates:
+    candidate = response.candidates[0]
+    if hasattr(candidate, 'grounding_metadata'):
+        metadata = candidate.grounding_metadata
+        if hasattr(metadata, 'grounding_chunks') and metadata.grounding_chunks:
+            for chunk in metadata.grounding_chunks:
+                if hasattr(chunk, 'web') and chunk.web:
+                    sources.append({
+                        "url": chunk.web.uri,
+                        "title": getattr(chunk.web, 'title', None)
+                    })
 ```
 
 ### JSON形式レスポンス（構造化出力）

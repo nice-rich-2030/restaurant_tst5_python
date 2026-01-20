@@ -186,7 +186,7 @@ Gemini API呼び出し (ツールなし)
 | 関数名 | 説明 |
 |--------|------|
 | `__init__()` | Geminiクライアント初期化 |
-| `grounding_search(prompt)` | Grounding Search実行 |
+| `grounding_search(prompt)` | Grounding Search実行（v1.1: dict返却に変更、テキスト+ソース） |
 | `generate_content(prompt)` | 通常のAI生成（抽出・判定用） |
 | `_parse_grounding_metadata(response)` | メタデータ解析 |
 
@@ -206,6 +206,13 @@ tools = [
 - APIキーはconfig.pyから取得
 - レート制限対応（リトライロジック）
 - タイムアウト設定（30秒目安）
+
+**v1.1 変更内容**:
+- `grounding_search()` の返却値を `str` から `dict` に変更
+  - `{"text": str, "sources": List[dict]}` 形式で返却
+  - `response.candidates[0].groundingMetadata.groundingChunks` から抽出
+  - 各chunk.webから `uri` と `title` を取得
+  - 防御的コーディング（hasattr チェック）でオプショナルフィールドに対応
 
 ---
 
@@ -310,6 +317,7 @@ ShopDetailData
 ├── prompt: str
 ├── raw_response: str
 ├── grounding_metadata: dict | None
+├── sources: list[SourceCitation]  # v1.1追加
 
 JudgementData
 ├── shop_name: str
@@ -323,6 +331,11 @@ SummaryData
 ├── max_score_shop: str
 ├── min_score_shop: str
 ├── total_shops: int
+├── sources: list[SourceCitation]  # v1.1追加（各店舗の詳細に含まれる）
+
+SourceCitation (v1.1追加)
+├── url: str                # 参照元URL
+├── title: str | None       # ページタイトル（オプショナル）
 ```
 
 **実装時の注意点**:
@@ -525,9 +538,10 @@ Step5 表示（合致度判定）
 | `renderStep1(data)` | Step1表示 |
 | `renderStep2(data)` | Step2表示 |
 | `renderStep3(shops)` | Step3表示（チェックボックス生成） |
-| `renderStep4(details)` | Step4表示 |
+| `renderStep4(details)` | Step4表示（v1.1: ソースURL表示追加） |
 | `renderStep5(judgements)` | Step5表示 |
 | `renderSummary(summary)` | サマリー表示 |
+| `renderSources(sources, containerId)` | ソースURL一覧表示（v1.1追加） |
 | `getSelectedShops()` | 選択された店舗リスト取得 |
 | `selectAll()` | 全選択 |
 | `deselectAll()` | 全解除 |
@@ -547,6 +561,13 @@ function debugLog(processName, data) {
 - fetch APIでバックエンド通信
 - async/awaitで非同期処理
 - エラー時も処理継続可能な設計
+
+**v1.1 変更内容**:
+- `renderSources()` 関数追加: ソースURL一覧を表示
+  - 各ソースをリンクとして表示（新しいタブで開く）
+  - タイトルが利用可能な場合は表示、なければURLを表示
+  - ソースがない場合は「参照元URLなし」を表示
+- `renderStep4()` 関数を拡張: 各店舗の詳細サーチ結果の下にソースURL表示
 
 ---
 

@@ -6,11 +6,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from app.config import get_settings
+from app.config import get_settings, clear_settings_cache
 from app.logger import logger
 from app.routers import search
 
-# Initialize settings
+# Clear cache and reload settings from .env on startup
+clear_settings_cache()
 settings = get_settings()
 
 # Create FastAPI app

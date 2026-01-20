@@ -22,7 +22,7 @@ class GeminiService:
         self.model_name = self.settings.gemini_model
         logger.info(f"GeminiService initialized with model: {self.model_name}")
 
-    def grounding_search(self, prompt: str) -> str:
+    def grounding_search(self, prompt: str) -> dict:
         """
         Perform Grounding Search using Google Search
 
@@ -30,7 +30,10 @@ class GeminiService:
             prompt: Search prompt
 
         Returns:
-            str: Raw response text from Gemini
+            dict: {
+                "text": str,  # Response text
+                "sources": List[dict]  # Source citations with url and title
+            }
 
         Raises:
             Exception: If API call fails
@@ -62,7 +65,29 @@ class GeminiService:
             logger.info(f"[Grounding Search] Response length: {len(result_text)} chars")
             logger.debug(f"[Grounding Search] Response: {result_text[:200]}...")
 
-            return result_text
+            # Extract source citations from grounding metadata
+            sources = []
+            if hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'grounding_metadata'):
+                    metadata = candidate.grounding_metadata
+                    if hasattr(metadata, 'grounding_chunks') and metadata.grounding_chunks:
+                        for chunk in metadata.grounding_chunks:
+                            if hasattr(chunk, 'web') and chunk.web:
+                                source = {
+                                    "url": chunk.web.uri,
+                                    "title": getattr(chunk.web, 'title', None)
+                                }
+                                sources.append(source)
+
+            logger.info(f"[Grounding Search] Extracted {len(sources)} source citations")
+
+            result_data = {
+                "text": result_text,
+                "sources": sources
+            }
+
+            return result_data
 
         except Exception as e:
             logger.error(f"[Grounding Search] Error: {type(e).__name__}: {str(e)}")
