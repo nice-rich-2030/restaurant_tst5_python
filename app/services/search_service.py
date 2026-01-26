@@ -205,7 +205,7 @@ class SearchService:
             try:
                 # Step 4: Individual shop Grounding Search
                 logger.info(f"[Step 4-{i}] Performing Grounding Search for: {shop_name}")
-                detail_data = self._shop_detail_search(shop_name)
+                detail_data = self._shop_detail_search(shop_name, input_text)
                 detail_result = detail_data["text"]
                 detail_sources = detail_data["sources"]
                 logger.info(f"[Step 4-{i}] Grounding Search completed: {len(detail_result)} chars, {len(detail_sources)} sources")
@@ -264,12 +264,13 @@ class SearchService:
 
         return response
 
-    def _shop_detail_search(self, shop_name: str) -> dict:
+    def _shop_detail_search(self, shop_name: str, input_text: str) -> dict:
         """
         Perform Grounding Search for a specific shop
 
         Args:
             shop_name: Shop name to search
+            input_text: Original user's search query
 
         Returns:
             dict: {
@@ -277,14 +278,22 @@ class SearchService:
                 "sources": List[dict]  # Source citations
             }
         """
-        prompt = f"""「{shop_name}」について、以下の情報を検索してください:
+        prompt = f"""「{shop_name}」について、以下の情報を検索してください。
 
-- 店舗の基本情報(住所、営業時間、定休日など)
+【ユーザーの検索条件】
+{input_text}
+
+【検索項目】
+- 店舗の基本情報(住所、営業時間、定休日など) 出典URL
 - 料理のジャンルや特徴
-- 評判や口コミ
 - アクセス方法
+- 評判や口コミ 出典URL
+- 上記の検索条件との関連性
 
-簡潔にまとめて回答してください。"""
+【回答形式】
+- 検索項目の各情報の根拠となるURL（公式サイト、食べログ、Rettyなど）を必ず記載してください
+- 情報の出典元がわかるよう「参照: [URL]」の形式で明記してください
+- 丁寧かつ簡潔にまとめてください"""
 
         return self.gemini_service.grounding_search(prompt)
 
